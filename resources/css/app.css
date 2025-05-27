@@ -1,0 +1,491 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fuentes */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* Variables CSS personalizadas */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+
+    /* Variables personalizadas adicionales */
+    --color-primary: #000000;
+    --color-primary-hover: #1f2937;
+    --color-secondary: #f3f4f6;
+    --color-secondary-hover: #e5e7eb;
+    --border-radius: 0.375rem;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+/* Componentes base */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-black text-white hover:bg-gray-800 focus:ring-black;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500;
+  }
+
+  .btn-outline {
+    @apply btn border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+
+  .card-body {
+    @apply px-6 py-4;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors;
+  }
+
+  .input-error {
+    @apply border-red-300 focus:ring-red-500 focus:border-red-500;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .alert {
+    @apply rounded-lg p-4 mb-4;
+  }
+
+  .alert-error {
+    @apply alert bg-red-50 border border-red-200 text-red-700;
+  }
+
+  .alert-success {
+    @apply alert bg-green-50 border border-green-200 text-green-700;
+  }
+
+  .alert-warning {
+    @apply alert bg-yellow-50 border border-yellow-200 text-yellow-700;
+  }
+
+  .alert-info {
+    @apply alert bg-blue-50 border border-blue-200 text-blue-700;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-black text-white;
+  }
+
+  .badge-secondary {
+    @apply badge bg-gray-100 text-gray-800;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  /* Componentes específicos del virtual try-on */
+  .upload-area {
+    @apply border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer;
+  }
+
+  .upload-area.dragover {
+    @apply border-blue-500 bg-blue-50;
+  }
+
+  .result-container {
+    @apply border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center min-h-96 relative;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500;
+  }
+
+  .tab-button {
+    @apply flex-1 py-2 px-4 text-center border-b-2 transition-colors;
+  }
+
+  .tab-button.active {
+    @apply border-black font-medium text-black;
+  }
+
+  .tab-button.inactive {
+    @apply border-transparent text-gray-500 hover:text-gray-700;
+  }
+}
+
+/* Estilos base */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    @apply bg-background text-foreground;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold text-gray-900;
+  }
+
+  h1 {
+    @apply text-3xl lg:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl lg:text-2xl;
+  }
+
+  h4 {
+    @apply text-lg lg:text-xl;
+  }
+
+  h5 {
+    @apply text-base lg:text-lg;
+  }
+
+  h6 {
+    @apply text-sm lg:text-base;
+  }
+
+  p {
+    @apply text-gray-600 leading-relaxed;
+  }
+
+  a {
+    @apply text-black hover:text-gray-700 transition-colors;
+  }
+
+  /* Estilos para formularios */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  textarea,
+  select {
+    @apply input-field;
+  }
+
+  /* Estilos para focus */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none ring-2 ring-black ring-opacity-50;
+  }
+
+  /* Estilos para placeholders */
+  ::placeholder {
+    @apply text-gray-400;
+  }
+
+  /* Estilos para selección de texto */
+  ::selection {
+    @apply bg-black text-white;
+  }
+
+  /* Estilos para botones deshabilitados */
+  button:disabled,
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Estilos para imágenes */
+  img {
+    @apply max-w-full h-auto;
+  }
+
+  /* Estilos para listas */
+  ul,
+  ol {
+    @apply list-inside;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  /* Estilos para tablas */
+  table {
+    @apply w-full border-collapse;
+  }
+
+  th,
+  td {
+    @apply px-4 py-2 text-left border-b border-gray-200;
+  }
+
+  th {
+    @apply font-semibold text-gray-900 bg-gray-50;
+  }
+}
+
+/* Utilidades personalizadas */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .glass {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .glass-dark {
+    backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .virtual-try-on-container {
+    @apply px-2;
+  }
+
+  .card {
+    @apply rounded-lg;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    @apply text-sm px-4 py-2;
+  }
+
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+
+  h3 {
+    @apply text-lg;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    @apply text-black bg-white;
+  }
+
+  .card {
+    @apply shadow-none border border-gray-300;
+  }
+}
+
+/* Animaciones personalizadas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+  }
+  40%,
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* Estados de hover mejorados */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Efectos de sombra */
+.shadow-soft {
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-strong {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para notificaciones */
+.notification {
+  @apply fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm animate-fade-in;
+}
+
+.notification-success {
+  @apply notification bg-green-500 text-white;
+}
+
+.notification-error {
+  @apply notification bg-red-500 text-white;
+}
+
+.notification-warning {
+  @apply notification bg-yellow-500 text-white;
+}
+
+.notification-info {
+  @apply notification bg-blue-500 text-white;
+}
