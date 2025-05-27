@@ -24,14 +24,15 @@ class VirtualTryOnController extends Controller
         set_time_limit(600); // 10 minutos
         ini_set('max_execution_time', 600);
         
-        Log::info('=== VIRTUAL TRY-ON REQUEST RECEIVED ===', [
+        Log::info('=== VIRTUAL TRY-ON REQUEST RECEIVED (Laravel 9) ===', [
             'method' => $request->method(),
             'url' => $request->fullUrl(),
             'ip' => $request->ip(),
             'has_garment' => $request->hasFile('garment_image'),
             'has_person' => $request->hasFile('person_image'),
             'has_token' => $request->filled('api_token'),
-            'environment' => app()->environment()
+            'environment' => app()->environment(),
+            'laravel_version' => app()->version()
         ]);
 
         $validator = Validator::make($request->all(), [
@@ -63,7 +64,7 @@ class VirtualTryOnController extends Controller
                 ]);
             }
 
-            Log::info('Processing with Flux VTON', [
+            Log::info('Processing with Flux VTON (Laravel 9)', [
                 'garment_part' => $garmentPart,
                 'garment_size' => $garmentImage->getSize(),
                 'person_size' => $personImage->getSize(),
@@ -104,10 +105,10 @@ class VirtualTryOnController extends Controller
                 CURLOPT_HTTPHEADER => [
                     'Authorization: Token ' . $apiToken,
                     'Content-Type: application/json',
-                    'User-Agent: Laravel-VirtualTryOn/1.0'
+                    'User-Agent: Laravel-VirtualTryOn-v9/1.0'
                 ],
-                CURLOPT_TIMEOUT => 60, // Aumentado a 60 segundos
-                CURLOPT_CONNECTTIMEOUT => 30, // Aumentado a 30 segundos
+                CURLOPT_TIMEOUT => 60,
+                CURLOPT_CONNECTTIMEOUT => 30,
                 CURLOPT_SSL_VERIFYPEER => false
             ]);
 
@@ -153,7 +154,7 @@ class VirtualTryOnController extends Controller
 
                 $imageBase64 = 'data:image/png;base64,' . base64_encode($imageData);
 
-                Log::info('Virtual Try-On completed successfully', [
+                Log::info('Virtual Try-On completed successfully (Laravel 9)', [
                     'prediction_id' => $prediction['id'],
                     'result_size_kb' => round(strlen($imageBase64) / 1024, 2)
                 ]);
@@ -163,7 +164,8 @@ class VirtualTryOnController extends Controller
                     'imageBase64' => $imageBase64,
                     'modelUsed' => $this->fluxModel['name'],
                     'predictionId' => $prediction['id'],
-                    'processingTime' => $result['processing_time'] ?? null
+                    'processingTime' => $result['processing_time'] ?? null,
+                    'laravel_version' => app()->version()
                 ]);
             } else {
                 $errorMsg = $result['error'] ?? 'Error desconocido';
@@ -177,7 +179,7 @@ class VirtualTryOnController extends Controller
             }
 
         } catch (\Exception $e) {
-            Log::error('Error in virtual try-on', [
+            Log::error('Error in virtual try-on (Laravel 9)', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_ip' => $request->ip()
@@ -196,11 +198,11 @@ class VirtualTryOnController extends Controller
      */
     public function checkTokens()
     {
-        Log::info('CheckTokens method called');
+        Log::info('CheckTokens method called (Laravel 9)');
         
         return response()->json([
             'success' => true,
-            'message' => 'API funcionando correctamente',
+            'message' => 'API funcionando correctamente con Laravel 9',
             'controller' => 'VirtualTryOnController',
             'model' => $this->fluxModel['name'],
             'laravel_version' => app()->version(),
@@ -215,7 +217,7 @@ class VirtualTryOnController extends Controller
      */
     public function testGenerate(Request $request)
     {
-        Log::info('TestGenerate method called', [
+        Log::info('TestGenerate method called (Laravel 9)', [
             'has_garment' => $request->hasFile('garment_image'),
             'has_person' => $request->hasFile('person_image'),
             'has_token' => $request->filled('api_token')
@@ -223,9 +225,10 @@ class VirtualTryOnController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Test endpoint funcionando correctamente',
+            'message' => 'Test endpoint funcionando correctamente con Laravel 9',
             'controller' => 'VirtualTryOnController@testGenerate',
             'model' => $this->fluxModel['name'],
+            'laravel_version' => app()->version(),
             'received_data' => [
                 'has_garment' => $request->hasFile('garment_image'),
                 'has_person' => $request->hasFile('person_image'),
@@ -236,7 +239,7 @@ class VirtualTryOnController extends Controller
         ]);
     }
 
-    // Métodos auxiliares
+    // Métodos auxiliares (sin cambios, compatibles con Laravel 9)
     private function isValidReplicateToken($token)
     {
         return strlen($token) >= 10 && strpos($token, 'r8_') === 0;
@@ -259,85 +262,6 @@ class VirtualTryOnController extends Controller
             default:
                 return "Error del servidor: HTTP {$httpCode}";
         }
-    }
-
-    private function waitForPrediction($predictionId, $apiToken)
-    {
-        $attempts = 0;
-        $maxAttempts = 60;
-        
-        while ($attempts < $maxAttempts) {
-            sleep(3);
-            $attempts++;
-
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => "https://api.replicate.com/v1/predictions/{$predictionId}",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => [
-                    'Authorization: Token ' . $apiToken,
-                    'User-Agent: Laravel-VirtualTryOn/1.0'
-                ],
-                CURLOPT_TIMEOUT => 15,
-                CURLOPT_CONNECTTIMEOUT => 5,
-                CURLOPT_SSL_VERIFYPEER => false
-            ]);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-
-            if ($response === false || !empty($curlError)) {
-                Log::warning("Error checking prediction status (attempt {$attempts}): {$curlError}");
-                continue;
-            }
-
-            if ($httpCode === 200) {
-                $result = json_decode($response, true);
-                Log::info("Prediction status (attempt {$attempts}): " . $result['status']);
-                
-                if (in_array($result['status'], ['succeeded', 'failed', 'canceled'])) {
-                    return $result;
-                }
-            }
-        }
-
-        return [
-            'status' => 'timeout',
-            'error' => 'La predicción tardó demasiado tiempo'
-        ];
-    }
-
-    private function downloadImage($imageUrl)
-    {
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $imageUrl,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 60,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => 3
-        ]);
-
-        $imageData = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($imageData === false || !empty($curlError)) {
-            Log::error('Error downloading image: ' . $curlError);
-            return false;
-        }
-
-        if ($httpCode !== 200) {
-            Log::error('Error downloading image: HTTP ' . $httpCode);
-            return false;
-        }
-
-        return $imageData;
     }
 
     private function optimizeImage($imageFile)
@@ -397,10 +321,10 @@ class VirtualTryOnController extends Controller
     private function waitForPredictionOptimized($predictionId, $apiToken)
     {
         $attempts = 0;
-        $maxAttempts = 120; // 6 minutos máximo (120 * 3 segundos)
+        $maxAttempts = 120; // 6 minutos máximo
         $startTime = time();
         
-        Log::info('Starting prediction wait', [
+        Log::info('Starting prediction wait (Laravel 9)', [
             'prediction_id' => $predictionId,
             'max_attempts' => $maxAttempts
         ]);
@@ -410,13 +334,13 @@ class VirtualTryOnController extends Controller
             $currentTime = time();
             $elapsedTime = $currentTime - $startTime;
             
-            // Delay progresivo: empezar con 2 segundos, aumentar gradualmente
+            // Delay progresivo
             if ($attempts <= 10) {
-                $delay = 2; // Primeros 10 intentos: 2 segundos
+                $delay = 2;
             } elseif ($attempts <= 30) {
-                $delay = 3; // Siguientes 20 intentos: 3 segundos
+                $delay = 3;
             } else {
-                $delay = 5; // Resto: 5 segundos
+                $delay = 5;
             }
             
             sleep($delay);
@@ -428,9 +352,9 @@ class VirtualTryOnController extends Controller
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_HTTPHEADER => [
                         'Authorization: Token ' . $apiToken,
-                        'User-Agent: Laravel-VirtualTryOn/1.0'
+                        'User-Agent: Laravel-VirtualTryOn-v9/1.0'
                     ],
-                    CURLOPT_TIMEOUT => 20, // Timeout más corto para checks
+                    CURLOPT_TIMEOUT => 20,
                     CURLOPT_CONNECTTIMEOUT => 10,
                     CURLOPT_SSL_VERIFYPEER => false
                 ]);
@@ -449,7 +373,7 @@ class VirtualTryOnController extends Controller
                     $result = json_decode($response, true);
                     $status = $result['status'] ?? 'unknown';
                     
-                    Log::info("Prediction status check", [
+                    Log::info("Prediction status check (Laravel 9)", [
                         'attempt' => $attempts,
                         'elapsed_time' => $elapsedTime,
                         'status' => $status,
@@ -461,7 +385,6 @@ class VirtualTryOnController extends Controller
                         return $result;
                     }
                     
-                    // Si está en processing, continuar esperando
                     if ($status === 'processing') {
                         continue;
                     }
@@ -475,7 +398,7 @@ class VirtualTryOnController extends Controller
             }
         }
 
-        Log::error("Prediction timeout", [
+        Log::error("Prediction timeout (Laravel 9)", [
             'prediction_id' => $predictionId,
             'total_attempts' => $attempts,
             'total_time' => time() - $startTime
@@ -490,18 +413,18 @@ class VirtualTryOnController extends Controller
 
     private function downloadImageOptimized($imageUrl)
     {
-        Log::info('Downloading result image', ['url' => $imageUrl]);
+        Log::info('Downloading result image (Laravel 9)', ['url' => $imageUrl]);
         
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL => $imageUrl,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 120, // 2 minutos para descarga
+            CURLOPT_TIMEOUT => 120,
             CURLOPT_CONNECTTIMEOUT => 30,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS => 5,
-            CURLOPT_USERAGENT => 'Laravel-VirtualTryOn/1.0'
+            CURLOPT_USERAGENT => 'Laravel-VirtualTryOn-v9/1.0'
         ]);
 
         $imageData = curl_exec($ch);
@@ -520,7 +443,7 @@ class VirtualTryOnController extends Controller
             return false;
         }
 
-        Log::info('Image downloaded successfully', [
+        Log::info('Image downloaded successfully (Laravel 9)', [
             'size_bytes' => $downloadSize,
             'size_kb' => round($downloadSize / 1024, 2)
         ]);
@@ -551,11 +474,32 @@ class VirtualTryOnController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Usando modelo único: ' . $this->fluxModel['name'],
-            'model' => $this->fluxModel
+            'model' => $this->fluxModel,
+            'laravel_version' => app()->version()
         ]);
     }
 
-    public function getAccountInfo() { return response()->json(['success' => false, 'message' => 'En desarrollo']); }
-    public function checkPrediction() { return response()->json(['success' => false, 'message' => 'En desarrollo']); }
-    public function cancelPrediction() { return response()->json(['success' => false, 'message' => 'En desarrollo']); }
+    public function getAccountInfo() { 
+        return response()->json([
+            'success' => false, 
+            'message' => 'En desarrollo',
+            'laravel_version' => app()->version()
+        ]); 
+    }
+    
+    public function checkPrediction() { 
+        return response()->json([
+            'success' => false, 
+            'message' => 'En desarrollo',
+            'laravel_version' => app()->version()
+        ]); 
+    }
+    
+    public function cancelPrediction() { 
+        return response()->json([
+            'success' => false, 
+            'message' => 'En desarrollo',
+            'laravel_version' => app()->version()
+        ]); 
+    }
 }
